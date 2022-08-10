@@ -11,3 +11,66 @@ exports[`createRepo 1`] = `
 `;
 
 exports[`createRepo 2`] = `"{\\"compilerOptions\\":{\\"target\\":\\"es2020\\",\\"module\\":\\"commonjs\\",\\"esModuleInterop\\":true,\\"forceConsistentCasingInFileNames\\":true,\\"declaration\\":true,\\"strict\\":true,\\"skipLibCheck\\":true,\\"outDir\\":\\"dist\\"}}"`;
+
+exports[`createSubgraphTemplate 1`] = `
+"{
+  \\"name\\": \\"example-event-handler\\",
+  \\"scripts\\": {
+    \\"codegen\\": \\"graph codegen --output-dir src/types/ subgraph.yaml\\"
+  },
+  \\"devDependencies\\": {
+    \\"@graphprotocol/graph-ts\\": \\"0.26.0\\"
+  },
+  \\"resolutions\\": {
+    \\"assemblyscript\\": \\"0.19.10\\"
+  }
+}"
+`;
+
+exports[`createSubgraphTemplate 2`] = `
+"specVersion: 0.0.4
+description: example of a subgraph
+repository: https://github.com/graphprotocol/graph-cli.git
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: SimpleStorage
+    network: mainnet
+    source:
+      address: \\"0xC36442b4a4522E871399CD717aBDD847Ab11FE88\\"
+      abi: SimpleStorage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PutValue
+      abis:
+        - name: SimpleStorage
+          file: ./abis/SimpleStorage.json
+      eventHandlers:
+        - event: PutValue(uint256,string)
+          handler: handlePutValue
+      file: ./src/simple-storage.ts
+"
+`;
+
+exports[`createSubgraphTemplate 3`] = `
+"{
+  \\"mainnet\\": {
+    \\"SimpleStorage\\": {
+      \\"address\\": \\"0xC36442b4a4522E871399CD717aBDD847Ab11FE88\\"
+    }
+  }
+}"
+`;
+
+exports[`createSubgraphTemplate 4`] = `
+"type PutValue @entity {
+  id: ID!
+  _loc: BigInt! # uint256
+  _value: String! # string
+}
+"
+`;

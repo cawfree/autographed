@@ -161,9 +161,12 @@ it("createSubgraphTemplate", () => {
 
   expect(fs.existsSync(abiPath)).toBeTruthy();
 
-  console.log('dir is', dir);
-
-  const {networksJson} = createSubgraphTemplate({
+  const {
+    packageJson,
+    subgraphYaml,
+    networksJson,
+    schemaGraphql,
+  } = createSubgraphTemplate({
     sources: [
       {
         abiPath,
@@ -177,8 +180,9 @@ it("createSubgraphTemplate", () => {
   });
 
   expect(fs.existsSync(dir)).toBeTruthy();
-  expect(fs.existsSync(networksJson)).toBeTruthy();
 
-  console.log(dir);
-
+  expect(fs.readFileSync(packageJson, 'utf-8')).toMatchSnapshot();
+  expect(fs.readFileSync(subgraphYaml, 'utf-8')).toMatchSnapshot();
+  expect(fs.readFileSync(networksJson, 'utf-8')).toMatchSnapshot();
+  expect(fs.readFileSync(schemaGraphql, 'utf-8')).toMatchSnapshot();
 });

@@ -94,17 +94,11 @@ export const createGraphProtocolTemplate = async ({
 
 export const createSubgraphTemplate = ({
   sources,
-  //abiPath,
-  //contractName,
-  //contractAddress,
   dir,
   graphProtocolTemplateDir,
   purgeIfExists,
 }: {
   readonly sources: readonly Source[];
-  //readonly abiPath: string;
-  //readonly contractName: string;
-  //readonly contractAddress: string;
   readonly dir: string;
   readonly graphProtocolTemplateDir: string;
   readonly purgeIfExists?: boolean;
@@ -175,14 +169,13 @@ export const createSubgraphTemplate = ({
 
   fs.writeFileSync(
     subgraphYaml,
-    JSON.stringify({
+    stringify({
       ...extras,
       dataSources: Array.from(dataSources)
         .filter((_, i) => i > 0),
     }),
   );
 
-  // Drop example schema.
   fs.writeFileSync(
     schemaGraphql,
     fs.readFileSync(schemaGraphql, 'utf-8').substring(originalSchema.length),
