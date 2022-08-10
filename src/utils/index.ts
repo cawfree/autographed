@@ -130,6 +130,11 @@ export const createSubgraphTemplate = ({
   if (!fs.existsSync(exampleSubgraphDir))
     throw new Error(`Unable to find exampleSubgraphDir at "${exampleSubgraphDir}".`);
 
+  child_process.execSync(
+    'npm i',
+    {stdio: 'inherit', cwd: exampleSubgraphDir},
+  );
+
   fs.copySync(exampleSubgraphDir, dir, {recursive: true});
 
   const schemaGraphql = path.resolve(dir, 'schema.graphql');
@@ -194,11 +199,6 @@ export const createSubgraphTemplate = ({
   subgraphCodegen({dir});
 
   fs.moveSync(path.resolve(dir, 'src', 'types'), path.resolve(dir, 'generated'));
-
-  child_process.execSync(
-    'npm i',
-    {stdio: 'inherit', cwd: dir},
-  );
 
   return {
     packageJson,

@@ -128,24 +128,24 @@ it("createRepo", () => {
 });
 
 const testHardhatProject = tempPath('autodave::jest::compileHardhatProject');
+const cacheEnabled = true;
 
 it("compileHardhatProject", () => {
+  if (fs.existsSync(testHardhatProject) && cacheEnabled) return;
 
-  // Create the temporary project if it doesn't exist.
-  (!fs.existsSync(testHardhatProject)) && createHardhatTestProject({
+  createHardhatTestProject({
     dir: testHardhatProject,
   });
 
   compileHardhatProject({hardhatProjectDir: testHardhatProject});
-
-  // Okay, next try to auto-generate a subgraph for it.
 });
 
 const graphProtocolTemplateDir = tempPath('autodave::jest::createGraphProtocolTemplate');
 
 it("createGraphProtocolTemplate", () => {
-  // Create the graph protocol template.
-  (!fs.existsSync(graphProtocolTemplateDir)) && createGraphProtocolTemplate({
+  if (fs.existsSync(graphProtocolTemplateDir) && cacheEnabled) return;
+
+  createGraphProtocolTemplate({
     dir: graphProtocolTemplateDir,
     purgeIfExists: true,
   });
@@ -201,13 +201,11 @@ it("buildSubgraph", () => {
 const graphNodeInstallationDir = tempPath('autodave__jest__ensureGraphNodeInstallation');
 
 it("ensureGraphNodeInstallation", () => {
-
-  console.log({graphNodeInstallationDir});
-
-  if (fs.existsSync(graphNodeInstallationDir)) return;
+  if (fs.existsSync(graphNodeInstallationDir) && cacheEnabled) return;
 
   const {graphNodeDir} = ensureGraphNodeInstallation({
     graphNodeInstallationDir,
+    purgeIfExists: true,
   });
 
   expect(fs.existsSync(graphNodeDir)).toBeTruthy();
