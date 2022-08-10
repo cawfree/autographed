@@ -297,18 +297,24 @@ const postgres = ({
   readonly postgresDb: string;
   readonly postgresUser: string;
   readonly postgresPassword: string;
-}) => new Promise(
-  () => child_process.exec(
-      `
-docker run --name postgres \
+}) => {
+  child_process.execSync(
+    'docker rm autographed;',
+    {stdio: 'inherit'},
+  );
+  return new Promise(
+    () => child_process.exec(
+       `
+docker run --name autographed \
 -p "${postgresPort}:${postgresPort}" \
 -e "POSTGRES_DB=${postgresDb}" \
 -e "POSTGRES_USER=${postgresUser}" \
 -e "POSTGRES_PASSWORD=${postgresPassword}" \
 postgres:14-alpine
-    `.trim(),
+      `.trim(),
     ),
   ) /* forever */;
+};
 
 export const graphNode = async ({
   graphNodeInstallationDir,
