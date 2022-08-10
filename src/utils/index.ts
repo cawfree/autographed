@@ -300,7 +300,6 @@ const postgres = ({
 }) => {
   child_process.execSync(
     'docker rm autographed;',
-    {stdio: 'inherit'},
   );
   return new Promise(
     () => child_process.exec(

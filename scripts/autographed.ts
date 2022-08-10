@@ -24,7 +24,7 @@ const seed = keccak('0.1.0');
 void (async () => {
   // TODO: define this using params
 
-  const subgraphName = 'Lock';
+  const subgraphName = 'MyFancySubgraph';
   const hardhatProjectDir = '/Users/cawfree/Development/tmp';
 
 
@@ -35,6 +35,11 @@ void (async () => {
       contractName: 'Lock',
       abiPath: path.resolve(hardhatProjectDir, 'artifacts', 'contracts', 'Lock.sol', 'Lock.json'),
       contractAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    },
+    {
+      contractName: 'Lock2',
+      abiPath: path.resolve(hardhatProjectDir, 'artifacts', 'contracts', 'Lock2.sol', 'Lock2.json'),
+      contractAddress: '0xa16E02E87b7454126E5E10d957A927A7F5B5d2be',
     },
   ];
 
@@ -67,8 +72,6 @@ void (async () => {
     graphProtocolTemplateDir,
     purgeIfExists: true,
   });
-
-  console.log('Deploying...');
 
   await deploy({
     ...toDeployParams(Environment.parse(process.env)),
