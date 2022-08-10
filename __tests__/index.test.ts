@@ -14,7 +14,7 @@ import {
   tempPath,
   throwOrPurgeOnDirExists,
   createSubgraphTemplate,
-  buildSubgraph,
+  buildSubgraph, ensureGraphNodeInstallation,
 } from '../src';
 
 const VALID_ENVIRONMENT = Object.freeze({
@@ -196,3 +196,19 @@ it("buildSubgraph", () => {
     subgraphDir: subgraphTemplate,
   });
 })
+
+// https://github.com/rust-lang/cargo/issues/1083
+const graphNodeInstallationDir = tempPath('autodave__jest__ensureGraphNodeInstallation');
+
+it("ensureGraphNodeInstallation", () => {
+
+  console.log({graphNodeInstallationDir});
+
+  if (fs.existsSync(graphNodeInstallationDir)) return;
+
+  const {graphNodeDir} = ensureGraphNodeInstallation({
+    graphNodeInstallationDir,
+  });
+
+  expect(fs.existsSync(graphNodeDir)).toBeTruthy();
+});

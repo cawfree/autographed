@@ -218,9 +218,27 @@ export const buildSubgraph = ({subgraphDir: dir}: {
  );
 };
 
-//export const launchEnvironment = ({
-//
-//}: Environment) => {
-//
-//};
-//
+export const ensureGraphNodeInstallation = ({
+  graphNodeInstallationDir: dir,
+  purgeIfExists,
+}: {
+  readonly graphNodeInstallationDir: string;
+  readonly purgeIfExists?: boolean;
+}) => {
+  throwOrPurgeOnDirExists({dir, purgeIfExists});
+  fs.mkdirSync(dir);
+
+  child_process.execSync(
+    'git clone https://github.com/graphprotocol/graph-node graph-node',
+    {stdio: 'inherit', cwd: dir},
+  );
+
+  const graphNodeDir = path.resolve(dir, 'graph-node');
+
+  child_process.execSync(
+    'cargo build',
+    {stdio: 'inherit', cwd: graphNodeDir},
+  );
+
+  return {graphNodeDir};
+};
