@@ -18,8 +18,9 @@ import {
   ensureGraphNodeInstallation,
 } from '../src';
 
-// TODO: fn of package.json
-const seed = keccak('0.1.0');
+import {version} from '../package.json';
+
+const seed = keccak(version);
 
 void (async () => {
 
@@ -27,7 +28,6 @@ void (async () => {
 
   const subgraphName = 'MyFancySubgraph';
   const hardhatProjectDir = '/Users/cawfree/Development/tmp';
-
 
   compileHardhatProject({hardhatProjectDir});
 
