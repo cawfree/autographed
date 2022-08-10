@@ -5,7 +5,8 @@ import path from "path";
 import {ethers} from "ethers";
 import {parse, stringify} from "yaml";
 
-import {Environment, Source} from "../@types";
+import {Source} from "../@types";
+import axios, {AxiosError} from "axios";
 
 export const tempPath = (name: string) => path.resolve(
   os.tmpdir(),
@@ -184,6 +185,7 @@ export const createSubgraphTemplate = ({
     stringify({
       ...extras,
       dataSources: Array.from(dataSources)
+        .map((e: any) => ({...e, network: 'hardhat'}))
         .filter((_, i) => i > 0),
     }),
   );
@@ -242,3 +244,207 @@ export const ensureGraphNodeInstallation = ({
 
   return {graphNodeDir};
 };
+
+const waitFor = async ({
+  completeOnError,
+  url,
+}: {
+  readonly completeOnError?: (e: AxiosError) => boolean;
+  readonly url: string;
+}) => {
+  while (true) {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.get(url);
+      break;
+    } catch (e) {
+      if (completeOnError?.(e as AxiosError)) break;
+    }
+  }
+}
+
+export const waitForEthereum = ({ethereumPort}: {
+  readonly ethereumPort: number;
+}) => waitFor({
+  url: `http://localhost:${ethereumPort}`,
+});
+
+export const waitForIpfs = ({ipfsPort}: {
+  readonly ipfsPort: number;
+}) => waitFor({
+  url: `http://localhost:${ipfsPort}`,
+  completeOnError: (e) => e?.response?.status === 404,
+});
+
+export const waitForGraph = ({graphNodeGraphQLPort}: {
+  readonly graphNodeGraphQLPort: number;
+}) => waitFor({url: `http://localhost:${
+  graphNodeGraphQLPort
+}`});
+
+export const ipfs = () =>
+  new Promise(
+    () => child_process.exec('ipfs daemon'),
+  ) /* forever */;
+
+const postgres = ({
+  postgresDb,
+  postgresPassword,
+  postgresPort,
+  postgresUser,
+}: {
+  readonly postgresPort: number;
+  readonly postgresDb: string;
+  readonly postgresUser: string;
+  readonly postgresPassword: string;
+}) => new Promise(
+  () => child_process.exec(
+      `
+docker run --name postgres \
+-p "${postgresPort}:${postgresPort}" \
+-e "POSTGRES_DB=${postgresDb}" \
+-e "POSTGRES_USER=${postgresUser}" \
+-e "POSTGRES_PASSWORD=${postgresPassword}" \
+postgres:14-alpine
+    `.trim(),
+    ),
+  ) /* forever */;
+
+export const graphNode = async ({
+  graphNodeInstallationDir,
+  postgresPassword,
+  postgresPort,
+  postgresUser,
+  postgresDb,
+  ipfsPort,
+  ethereumNetwork,
+  ethereumPort,
+}: Parameters<typeof postgres>[0] & {
+  readonly ipfsPort: number;
+  readonly graphNodeInstallationDir: string;
+  readonly ethereumNetwork: string;
+  readonly ethereumPort: number;
+}) => {
+  // TODO: Ideally, we need to be able to wait for postgres too. Ipfs just happens to take
+  //       a lot longer to initialize.
+  await waitForIpfs({
+    ipfsPort,
+  });
+
+  const graphNodeDir = path.resolve(graphNodeInstallationDir, 'graph-node');
+
+  return new Promise(
+    () => child_process.exec(
+      `
+        cargo run -p graph-node --release -- \
+        --ipfs 127.0.0.1:${ipfsPort} \
+        --ethereum-rpc ${ethereumNetwork}:http://127.0.0.1:${ethereumPort} \
+        --postgres-url "postgresql://${
+          postgresUser
+        }:${
+          postgresPassword
+        }@localhost:${
+          postgresPort
+        }/${
+          postgresDb
+        }" \
+        --debug
+      `.trim(),
+    {cwd: graphNodeDir},
+    ),
+  ) /* forever */;
+};
+
+export const subgraph = async ({
+  subgraphName,
+  graphNodeGraphQLPort,
+  graphNodeStatusPort,
+  ipfsPort,
+  versionLabel = '0-0.1',
+  subgraphTemplateDir: cwd,
+}: {
+  readonly graphNodeGraphQLPort: number;
+  readonly graphNodeStatusPort: number;
+  readonly ipfsPort: number;
+  readonly versionLabel?: string;
+  readonly subgraphTemplateDir: string;
+  readonly subgraphName: string;
+}) => {
+  await waitForGraph({
+    graphNodeGraphQLPort,
+  });
+  child_process.execSync(
+    `graph create --node http://localhost:${
+      graphNodeStatusPort
+    } ${
+      subgraphName
+    } && graph deploy --node http://localhost:${
+      graphNodeStatusPort
+    } --ipfs http://localhost:${
+      ipfsPort
+    } ${
+      subgraphName
+    } --version-label ${
+      versionLabel
+    }`,
+    {cwd, stdio: 'inherit'},
+  );
+};
+
+export const hardhatLocalNode = ({hardhatProjectDir}: {
+  readonly hardhatProjectDir: string;
+}) => child_process.exec(
+  './node_modules/.bin/hardhat node',
+  {cwd: hardhatProjectDir},
+);
+
+export const deploy = async ({
+  ethereumPort,
+  postgresPassword,
+  postgresDb,
+  postgresPort,
+  postgresUser,
+  graphNodeInstallationDir,
+  ipfsPort,
+  ethereumNetwork,
+  subgraphTemplateDir,
+  graphNodeStatusPort,
+  graphNodeGraphQLPort,
+  subgraphName,
+  versionLabel,
+  hardhatProjectDir,
+}:
+  & Parameters<typeof graphNode>[0]
+  & Parameters<typeof subgraph>[0]
+  & Parameters<typeof hardhatLocalNode>[0]
+) => Promise.all([
+  hardhatLocalNode({hardhatProjectDir}),
+  /* subgraph  */
+  waitForEthereum({ethereumPort}).then(() => Promise.all([
+    ipfs(),
+    postgres({
+      postgresDb,
+      postgresPort,
+      postgresUser,
+      postgresPassword,
+    }),
+    graphNode({
+      graphNodeInstallationDir,
+      postgresPassword,
+      postgresPort,
+      postgresUser,
+      postgresDb,
+      ipfsPort,
+      ethereumNetwork,
+      ethereumPort,
+    }),
+    subgraph({
+      subgraphTemplateDir,
+      graphNodeStatusPort,
+      graphNodeGraphQLPort,
+      ipfsPort,
+      subgraphName,
+      versionLabel,
+    }),
+  ])),
+]) /* forever */;

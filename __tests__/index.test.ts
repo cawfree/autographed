@@ -14,8 +14,12 @@ import {
   tempPath,
   throwOrPurgeOnDirExists,
   createSubgraphTemplate,
-  buildSubgraph, ensureGraphNodeInstallation,
+  buildSubgraph,
+  ensureGraphNodeInstallation,
+  deploy,
 } from '../src';
+
+jest.setTimeout(60 * 60 * 1000);
 
 const VALID_ENVIRONMENT = Object.freeze({
   POSTGRES_PORT: '5432',
@@ -209,4 +213,37 @@ it("ensureGraphNodeInstallation", () => {
   });
 
   expect(fs.existsSync(graphNodeDir)).toBeTruthy();
+});
+
+it("x", async () => {
+  const {
+    POSTGRES_PORT: postgresPort,
+    POSTGRES_DB: postgresDb,
+    POSTGRES_USER: postgresUser,
+    POSTGRES_PASSWORD: postgresPassword,
+    IPFS_PORT: ipfsPort,
+    ETHEREUM_PORT: ethereumPort,
+    ETHEREUM_NETWORK: ethereumNetwork,
+    GRAPH_NODE_GRAPHQL_PORT: graphNodeGraphQLPort,
+    GRAPH_NODE_STATUS_PORT: graphNodeStatusPort,
+  } = VALID_ENVIRONMENT;
+
+  console.log('trying...');
+
+  await deploy({
+    hardhatProjectDir: testHardhatProject,
+    ethereumPort: parseInt(ethereumPort),
+    postgresDb,
+    postgresUser,
+    postgresPort: parseInt(postgresPort),
+    postgresPassword,
+    ipfsPort: parseInt(ipfsPort),
+    // TODO: Determine this.
+    subgraphName: 'SimpleStorage',
+    graphNodeGraphQLPort: parseInt(graphNodeGraphQLPort),
+    graphNodeStatusPort: parseInt(graphNodeStatusPort),
+    graphNodeInstallationDir,
+    subgraphTemplateDir: subgraphTemplate,
+    ethereumNetwork,
+  });
 });

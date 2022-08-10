@@ -36,7 +36,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: SimpleStorage
-    network: mainnet
+    network: hardhat
     source:
       address: \\"0xC36442b4a4522E871399CD717aBDD847Ab11FE88\\"
       abi: SimpleStorage
