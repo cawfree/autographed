@@ -15,7 +15,7 @@ First, please make sure you've installed and configured the [__Rust Toolchain__]
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-On top of _that_, you'll need to be able to run [__Docker Containers__](https://www.docker.com/). The easiest way to do this is to download and install [__Docker Desktop__](https://www.docker.com/products/docker-desktop/).
+On top of that, you'll need to be able to run [__Docker Containers__](https://www.docker.com/). The easiest way to do this is to download and install [__Docker Desktop__](https://www.docker.com/products/docker-desktop/).
 
 With these steps out of the way, you'll finally need these final low-level dependencies:
 
@@ -24,6 +24,39 @@ ipfs jq gsed libpq cmake
 ```
 
 ### Getting Started
+
+Inside of your [__hardhat project root__](https://hardhat.org/hardhat-runner/docs/getting-started#overview), create a `.autograph.json`:
+
+```json
+{
+  // Name of the Subgraph.
+  "name": "MySubgraphName",
+  "sources": [
+    {
+      // Smart Contract Name.
+      "contractName": "MyContractName",
+      // Address the Smart Contract is deployed to on your local.
+      "contractAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ]
+}
+```
+
+By default, `autographed` will use the following settings by default:
+
+```shell
+GRAPH_NODE_GRAPHQL_PORT=8000
+GRAPH_NODE_STATUS_PORT=8020
+IPFS_PORT=5001
+POSTGRES_PORT=5432
+ETHEREUM_PORT=8545
+ETHEREUM_NETWORK=hardhat
+POSTGRES_DB=dev
+POSTGRES_USER=dev
+POSTGRES_PASSWORD=dev
+```
+
+These can be overridden if passed as [__environment variables__](https://stackoverflow.com/a/34154491).
 
 > There's a ton of binary files that will need to be compiled on your first run. In the mean time, why don't you put on a cup of coffee or do some yoga or something? ☕️
 

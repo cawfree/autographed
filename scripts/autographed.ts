@@ -2,7 +2,6 @@
 import 'dotenv/config';
 
 import fs from 'fs-extra';
-import path from "path";
 
 import {compileHardhatProject} from "hardhat-copy";
 
@@ -16,6 +15,7 @@ import {
   Source,
   createGraphProtocolTemplate,
   ensureGraphNodeInstallation,
+  DEFAULT_SETTINGS,
 } from '../src';
 
 import {version} from '../package.json';
@@ -23,6 +23,11 @@ import {version} from '../package.json';
 const seed = keccak(version);
 
 void (async () => {
+
+  const deployParams = toDeployParams(Environment.parse({
+    ...DEFAULT_SETTINGS,
+    ...process.env,
+  }));
 
   // TODO: define this using params
 
@@ -74,7 +79,7 @@ void (async () => {
   });
 
   await deploy({
-    ...toDeployParams(Environment.parse(process.env)),
+    ...deployParams,
     hardhatProjectDir,
     subgraphName,
     graphNodeInstallationDir,

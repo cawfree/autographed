@@ -18,21 +18,10 @@ import {
   ensureGraphNodeInstallation,
   deploy,
   toDeployParams,
+  DEFAULT_SETTINGS,
 } from '../src';
 
 jest.setTimeout(60 * 60 * 1000);
-
-const VALID_ENVIRONMENT = Object.freeze({
-  POSTGRES_PORT: '5432',
-  POSTGRES_DB: 'dev',
-  POSTGRES_USER: 'dev',
-  POSTGRES_PASSWORD: 'dev',
-  IPFS_PORT: '5001',
-  ETHEREUM_PORT: '8545',
-  ETHEREUM_NETWORK: 'hardhat',
-  GRAPH_NODE_GRAPHQL_PORT: '8000',
-  GRAPH_NODE_STATUS_PORT: '8020',
-});
 
 const createHardhatTestProject = ({dir}: {
   readonly dir: string;
@@ -87,11 +76,11 @@ it('validation', () => {
   expect(() => NumericString.parse('')).toThrow();
   expect(() => NumericString.parse('a')).toThrow();
 
-  expect(Environment.parse(VALID_ENVIRONMENT)).toBeTruthy();
+  expect(Environment.parse(DEFAULT_SETTINGS)).toBeTruthy();
 
-  expect(() => Environment.parse({...VALID_ENVIRONMENT, POSTGRES_PORT: 5432})).toThrow();
-  expect(() => Environment.parse({...VALID_ENVIRONMENT, POSTGRES_PORT: 'not a number'})).toThrow();
-  expect(() => Environment.parse({...VALID_ENVIRONMENT, POSTGRES_DB: ''})).toThrow();
+  expect(() => Environment.parse({...DEFAULT_SETTINGS, POSTGRES_PORT: 5432})).toThrow();
+  expect(() => Environment.parse({...DEFAULT_SETTINGS, POSTGRES_PORT: 'not a number'})).toThrow();
+  expect(() => Environment.parse({...DEFAULT_SETTINGS, POSTGRES_DB: ''})).toThrow();
 });
 
 it("throwOrPurgeOnDirExists", () => {
@@ -208,7 +197,7 @@ it("ensureGraphNodeInstallation", () => {
 
 it("deployment", async () => {
   await deploy({
-    ...toDeployParams(Environment.parse(VALID_ENVIRONMENT)),
+    ...toDeployParams(Environment.parse(DEFAULT_SETTINGS)),
     hardhatProjectDir: testHardhatProject,
     subgraphName: 'SimpleStorage',
     graphNodeInstallationDir,
