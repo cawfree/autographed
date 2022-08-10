@@ -5,7 +5,7 @@ import path from "path";
 import {ethers} from "ethers";
 import {parse, stringify} from "yaml";
 
-import {Source} from "../@types";
+import {Environment, Source} from "../@types";
 
 export const tempPath = (name: string) => path.resolve(
   os.tmpdir(),
@@ -91,6 +91,13 @@ export const createGraphProtocolTemplate = async ({
     {stdio: 'inherit', cwd: dir}
   );
 };
+
+const subgraphCodegen = ({dir: cwd}: {
+  readonly dir: string;
+}) => child_process.execSync(
+  'npm run-script codegen',
+  {stdio: 'inherit', cwd},
+);
 
 export const createSubgraphTemplate = ({
   sources,
@@ -184,8 +191,12 @@ export const createSubgraphTemplate = ({
   fs.rmSync(path.resolve(dir, 'src', 'types'), {recursive: true});
   fs.rmSync(path.resolve(dir, 'src', 'mapping.ts'), {recursive: true});
 
+  subgraphCodegen({dir});
+
+  fs.moveSync(path.resolve(dir, 'src', 'types'), path.resolve(dir, 'generated'));
+
   child_process.execSync(
-    'npm run-script codegen',
+    'npm i',
     {stdio: 'inherit', cwd: dir},
   );
 
@@ -196,3 +207,20 @@ export const createSubgraphTemplate = ({
     schemaGraphql,
   };
 };
+
+export const buildSubgraph = ({subgraphDir: dir}: {
+  readonly subgraphDir: string;
+}) => {
+  subgraphCodegen({dir});
+  child_process.execSync(
+    'graph build',
+    {stdio: 'inherit', cwd: dir},
+ );
+};
+
+//export const launchEnvironment = ({
+//
+//}: Environment) => {
+//
+//};
+//

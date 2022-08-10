@@ -12,7 +12,9 @@ import {
   NumericString,
   randomTempPath,
   tempPath,
-  throwOrPurgeOnDirExists, createSubgraphTemplate,
+  throwOrPurgeOnDirExists,
+  createSubgraphTemplate,
+  buildSubgraph,
 } from '../src';
 
 const VALID_ENVIRONMENT = Object.freeze({
@@ -149,8 +151,9 @@ it("createGraphProtocolTemplate", () => {
   });
 });
 
+const subgraphTemplate = tempPath('autodave::jest::createSubgraphTemplate');
+
 it("createSubgraphTemplate", () => {
-  const dir = tempPath('autodave::jest::createSubgraphTemplate');
   const abiPath = path.resolve(
     testHardhatProject,
     'artifacts',
@@ -174,15 +177,22 @@ it("createSubgraphTemplate", () => {
         contractName: 'SimpleStorage',
       },
     ],
-    dir,
+    dir: subgraphTemplate,
     graphProtocolTemplateDir,
     purgeIfExists: true,
   });
 
-  expect(fs.existsSync(dir)).toBeTruthy();
+  expect(fs.existsSync(subgraphTemplate)).toBeTruthy();
 
   expect(fs.readFileSync(packageJson, 'utf-8')).toMatchSnapshot();
   expect(fs.readFileSync(subgraphYaml, 'utf-8')).toMatchSnapshot();
   expect(fs.readFileSync(networksJson, 'utf-8')).toMatchSnapshot();
   expect(fs.readFileSync(schemaGraphql, 'utf-8')).toMatchSnapshot();
 });
+
+it("buildSubgraph", () => {
+  expect(fs.existsSync(subgraphTemplate)).toBeTruthy();
+  buildSubgraph({
+    subgraphDir: subgraphTemplate,
+  });
+})
