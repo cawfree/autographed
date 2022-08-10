@@ -159,16 +159,6 @@ it("createGraphProtocolTemplate", () => {
 const subgraphTemplate = tempPath('autodave::jest::createSubgraphTemplate');
 
 it("createSubgraphTemplate", () => {
-  const abiPath = path.resolve(
-    testHardhatProject,
-    'artifacts',
-    'contracts',
-    'SimpleStorage.sol',
-    'SimpleStorage.json'
-  );
-
-  expect(fs.existsSync(abiPath)).toBeTruthy();
-
   const {
     packageJson,
     subgraphYaml,
@@ -177,13 +167,13 @@ it("createSubgraphTemplate", () => {
   } = createSubgraphTemplate({
     sources: [
       {
-        abiPath,
         contractAddress: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
         contractName: 'SimpleStorage',
       },
     ],
     dir: subgraphTemplate,
     graphProtocolTemplateDir,
+    hardhatProjectDir: testHardhatProject,
     purgeIfExists: true,
   });
 

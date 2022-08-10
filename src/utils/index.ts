@@ -105,11 +105,13 @@ export const createSubgraphTemplate = ({
   dir,
   graphProtocolTemplateDir,
   purgeIfExists,
+  hardhatProjectDir,
 }: {
   readonly sources: readonly Source[];
   readonly dir: string;
   readonly graphProtocolTemplateDir: string;
   readonly purgeIfExists?: boolean;
+  readonly hardhatProjectDir: string;
 }) => {
 
   if (!fs.existsSync(graphProtocolTemplateDir))
@@ -165,8 +167,10 @@ export const createSubgraphTemplate = ({
     JSON.stringify({}),
   );
 
-  sources.forEach(({contractAddress, contractName, abiPath}: Source) => child_process.execSync(
-    `graph add ${contractAddress} --abi ${abiPath} --contract-name "${contractName}"`,
+  sources.forEach(({contractAddress, contractName}: Source) => child_process.execSync(
+    `graph add ${contractAddress} --abi ${
+      path.resolve(hardhatProjectDir, 'artifacts', 'contracts', `${contractName}.sol`, `${contractName}.json`)
+    } --contract-name "${contractName}"`,
     {stdio: 'inherit', cwd: dir},
   ));
 
