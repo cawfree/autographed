@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createRepo 1`] = `
+"{
+  \\"devDependencies\\": {
+    \\"ts-node\\": \\"^10.9.1\\",
+    \\"typescript\\": \\"^4.7.4\\"
+  }
+}
+"
+`;
+
+exports[`createRepo 2`] = `"{\\"compilerOptions\\":{\\"target\\":\\"es2020\\",\\"module\\":\\"commonjs\\",\\"esModuleInterop\\":true,\\"forceConsistentCasingInFileNames\\":true,\\"declaration\\":true,\\"strict\\":true,\\"skipLibCheck\\":true,\\"outDir\\":\\"dist\\"}}"`;

@@ -25,3 +25,11 @@ export const Environment = z.object({
 
 // extract the inferred type like this
 export type Environment = z.infer<typeof Environment>;
+
+export const Source = z.object({
+  contractAddress: z.string(),
+  contractName: z.string(),
+  abiPath: z.string(),
+});
+
+export type Source = z.infer<typeof Source>;
