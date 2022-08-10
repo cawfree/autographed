@@ -1,3 +1,4 @@
+import axios, {AxiosError} from "axios";
 import * as child_process from "child_process";
 import fs from "fs-extra";
 import os from "os";
@@ -5,8 +6,7 @@ import path from "path";
 import {ethers} from "ethers";
 import {parse, stringify} from "yaml";
 
-import {Source} from "../@types";
-import axios, {AxiosError} from "axios";
+import {Environment, Source} from "../@types";
 
 export const tempPath = (name: string) => path.resolve(
   os.tmpdir(),
@@ -73,7 +73,7 @@ export const createRepo = ({
   return {packageJson, tsConfigJson};
 };
 
-export const createGraphProtocolTemplate = async ({
+export const createGraphProtocolTemplate = ({
   dir,
   purgeIfExists,
 }: {
@@ -391,12 +391,36 @@ export const subgraph = async ({
   );
 };
 
-export const hardhatLocalNode = ({hardhatProjectDir}: {
+export const hardhatLocalNode = async ({hardhatProjectDir}: {
   readonly hardhatProjectDir: string;
 }) => child_process.exec(
   './node_modules/.bin/hardhat node',
   {cwd: hardhatProjectDir},
 );
+
+export const toDeployParams = ({
+  POSTGRES_PORT: postgresPort,
+  POSTGRES_DB: postgresDb,
+  POSTGRES_USER: postgresUser,
+  POSTGRES_PASSWORD: postgresPassword,
+  IPFS_PORT: ipfsPort,
+  ETHEREUM_PORT: ethereumPort,
+  ETHEREUM_NETWORK: ethereumNetwork,
+  GRAPH_NODE_GRAPHQL_PORT: graphNodeGraphQLPort,
+  GRAPH_NODE_STATUS_PORT: graphNodeStatusPort,
+}: Environment): Omit<Parameters<typeof deploy>[0],
+  'graphNodeInstallationDir' | 'subgraphName' | 'subgraphTemplateDir' | 'hardhatProjectDir'
+> => ({
+  ethereumPort,
+  postgresDb,
+  postgresUser,
+  postgresPort,
+  postgresPassword,
+  ipfsPort,
+  graphNodeGraphQLPort,
+  graphNodeStatusPort,
+  ethereumNetwork,
+});
 
 export const deploy = async ({
   ethereumPort,
@@ -417,34 +441,36 @@ export const deploy = async ({
   & Parameters<typeof graphNode>[0]
   & Parameters<typeof subgraph>[0]
   & Parameters<typeof hardhatLocalNode>[0]
-) => Promise.all([
-  hardhatLocalNode({hardhatProjectDir}),
-  /* subgraph  */
-  waitForEthereum({ethereumPort}).then(() => Promise.all([
-    ipfs(),
-    postgres({
-      postgresDb,
-      postgresPort,
-      postgresUser,
-      postgresPassword,
-    }),
-    graphNode({
-      graphNodeInstallationDir,
-      postgresPassword,
-      postgresPort,
-      postgresUser,
-      postgresDb,
-      ipfsPort,
-      ethereumNetwork,
-      ethereumPort,
-    }),
-    subgraph({
-      subgraphTemplateDir,
-      graphNodeStatusPort,
-      graphNodeGraphQLPort,
-      ipfsPort,
-      subgraphName,
-      versionLabel,
-    }),
-  ])),
-]) /* forever */;
+) => {
+  return Promise.all([
+    hardhatLocalNode({hardhatProjectDir}),
+    /* subgraph  */
+    waitForEthereum({ethereumPort}).then(() => Promise.all([
+      ipfs(),
+      postgres({
+        postgresDb,
+        postgresPort,
+        postgresUser,
+        postgresPassword,
+      }),
+      graphNode({
+        graphNodeInstallationDir,
+        postgresPassword,
+        postgresPort,
+        postgresUser,
+        postgresDb,
+        ipfsPort,
+        ethereumNetwork,
+        ethereumPort,
+      }),
+      subgraph({
+        subgraphTemplateDir,
+        graphNodeStatusPort,
+        graphNodeGraphQLPort,
+        ipfsPort,
+        subgraphName,
+        versionLabel,
+      }),
+    ])),
+  ]) /* forever */;
+};

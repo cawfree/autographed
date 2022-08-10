@@ -1,16 +1,22 @@
 {
-  "name": "autodave",
+  "name": "autographed",
   "version": "0.1.0",
   "description": "The self-building, hot-reloading subgraph. The quickest way to start indexing your shit.",
   "main": "dist",
-  "repository": "https://github.com/cawfree/autodave",
+  "repository": "https://github.com/cawfree/autographed",
   "author": "Alex Thomas (@cawfree) <hello@cawfree.com>",
   "license": "MIT",
   "private": false,
   "scripts": {
+    "build": "rm -rf dist ; tsc ; chmod +x dist/scripts/autographed.js && echo \"Success.\"",
+    "autographed": "ts-node scripts/autographed.ts",
     "test": "jest"
   },
+  "bin": {
+    "autographed": "./dist/scripts/autographed.js"
+  },
   "jest": {
+    "modulePathIgnorePatterns": ["dist"],
     "transformIgnorePatterns": []
   },
   "devDependencies": {
@@ -30,6 +36,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "change-case": "^4.1.2",
+    "dotenv": "^16.0.1",
     "ethers": "^5.6.9",
     "fs-extra": "^10.1.0",
     "nanoid": "3.3.4",
