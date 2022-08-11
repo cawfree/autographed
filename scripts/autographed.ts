@@ -3,8 +3,6 @@ import 'dotenv/config';
 
 import fs from 'fs-extra';
 
-import {compileHardhatProject} from "hardhat-copy";
-
 import {
   Environment,
   deploy,
@@ -12,40 +10,31 @@ import {
   tempPath,
   keccak,
   createSubgraphTemplate,
-  Source,
   createGraphProtocolTemplate,
   ensureGraphNodeInstallation,
   DEFAULT_SETTINGS,
+  Config,
 } from '../src';
 
 import {version} from '../package.json';
+import path from 'path';
 
 const seed = keccak(version);
 
 void (async () => {
 
+  const hardhatProjectDir = path.resolve('.');
+  const configJson = path.resolve(hardhatProjectDir, '.autograph.json');
+
+  const {
+    name: subgraphName,
+    sources,
+  } = Config.parse(JSON.parse(fs.readFileSync(configJson, 'utf-8')));
+
   const deployParams = toDeployParams(Environment.parse({
     ...DEFAULT_SETTINGS,
     ...process.env,
   }));
-
-  // TODO: define this using params
-
-  const subgraphName = 'MyFancySubgraph';
-  const hardhatProjectDir = '/Users/cawfree/Development/tmp';
-
-  compileHardhatProject({hardhatProjectDir});
-
-  const sources: readonly Source[] = [
-    {
-      contractName: 'Lock',
-      contractAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    },
-    {
-      contractName: 'Lock2',
-      contractAddress: '0xa16E02E87b7454126E5E10d957A927A7F5B5d2be',
-    },
-  ];
 
   const graphNodeInstallationDir = tempPath(`graphNodeInstallationDir__${seed}`);
   const graphProtocolTemplateDir = tempPath(`graphProtocolTemplateDir__${seed}`);

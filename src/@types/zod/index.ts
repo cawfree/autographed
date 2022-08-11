@@ -23,12 +23,16 @@ export const Environment = z.object({
   GRAPH_NODE_GRAPHQL_PORT: NumericString,
 });
 
-// extract the inferred type like this
-export type Environment = z.infer<typeof Environment>;
-
 export const Source = z.object({
-  contractAddress: z.string(),
-  contractName: z.string(),
+  contractAddress: z.string().min(1),
+  contractName: z.string().min(1),
 });
 
+export const Config = z.object({
+  name: z.string().min(1),
+  sources: z.array(Source),
+});
+
+export type Environment = z.infer<typeof Environment>;
 export type Source = z.infer<typeof Source>;
+export type Config = z.infer<typeof Config>;
