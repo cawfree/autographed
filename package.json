@@ -1,6 +1,6 @@
 {
   "name": "autographed",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The self-building, hot-reloading subgraph. The quickest way to start indexing your shit.",
   "main": "dist",
   "repository": "https://github.com/cawfree/autographed",
