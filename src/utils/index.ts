@@ -5,7 +5,6 @@ import os from "os";
 import path from "path";
 import {ethers} from "ethers";
 import {parse, stringify} from "yaml";
-import {nanoid} from "nanoid";
 
 import {Environment, Source} from "../@types";
 
@@ -261,16 +260,28 @@ const postgres = ({
   postgresPassword,
   postgresPort,
   postgresUser,
-  dockerContainerName = nanoid(),
+  dockerContainerName = 'autographed',
 }: {
   readonly postgresPort: number;
   readonly postgresDb: string;
   readonly postgresUser: string;
   readonly postgresPassword: string;
   readonly dockerContainerName?: string;
-}) => new Promise(
-  () => child_process.exec(
-     `
+}) => {
+
+  // Stop the container if it's running.
+  child_process.execSync(
+    `docker stop ${
+      dockerContainerName
+    } || true && docker rm ${
+      dockerContainerName
+    } || true`,
+    {stdio: 'inherit'}
+  );
+
+  return new Promise(
+    () => child_process.exec(
+        `
 docker run --name ${dockerContainerName} \
 -p "${postgresPort}:${postgresPort}" \
 -e "POSTGRES_DB=${postgresDb}" \
@@ -278,8 +289,9 @@ docker run --name ${dockerContainerName} \
 -e "POSTGRES_PASSWORD=${postgresPassword}" \
 postgres:14-alpine
     `.trim(),
-  ),
-) /* forever */;
+    ),
+  ) /* forever */;
+};
 
 export const graphNode = async ({
   graphNodeInstallationDir,
