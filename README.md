@@ -1,7 +1,7 @@
 # [`npx autographed`](https://github.com/cawfree/autographed)
 The self-building, hot-reloading subgraph. The quickest way to start indexing your shit.
 
-### Initial Setup
+### 🚀 getting started 
 
 Okay, so there's _a lot_ that goes into [__running a subgraph__](https://thegraph.com/docs/en/deploying/deploying-a-subgraph-to-hosted/). The purpose of this library is to take care of most of that, and just get you to indexing your smart contract as quickly as possible.
 
@@ -61,9 +61,9 @@ IPFS_PORT=420 ETHEREUM_PORT=6969 npx autographed
 
 > There's a ton of binary files that will need to be compiled on your first run. In the mean time, why don't you put on a cup of coffee or do some yoga or something? ☕️
 
-### Building
+### 🔨 building
 If you'd like to build this repo yourself, just `git clone` and run `yarn` from the top-level directory. You can also use `yarn test` to make sure everything's working okay or if you need to debug any issues you ~~might~~ will encounter.
 
-### License
+### ✌️ license
 [__MIT__](./LICENSE)
 
