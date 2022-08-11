@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import 'dotenv/config';
 
+import path from 'path';
 import fs from 'fs-extra';
 
 import {
+  DEFAULT_SETTINGS,
   Environment,
   deploy,
   toDeployParams,
@@ -12,12 +14,10 @@ import {
   createSubgraphTemplate,
   createGraphProtocolTemplate,
   ensureGraphNodeInstallation,
-  DEFAULT_SETTINGS,
   Config,
 } from '../src';
 
 import {version} from '../package.json';
-import path from 'path';
 
 const seed = keccak(version);
 
