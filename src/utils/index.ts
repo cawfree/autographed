@@ -5,6 +5,7 @@ import os from "os";
 import path from "path";
 import {ethers} from "ethers";
 import {parse, stringify} from "yaml";
+import {nanoid} from "nanoid";
 
 import {Environment, Source} from "../@types";
 
@@ -33,44 +34,6 @@ export const throwOrPurgeOnDirExists = ({
 
     fs.rmSync(dir, {recursive: true});
   }
-};
-
-export const createRepo = ({
-  dir,
-  purgeIfExists,
-}: {
-  readonly dir: string;
-  readonly purgeIfExists?: boolean;
-}) => {
-  throwOrPurgeOnDirExists({dir, purgeIfExists});
-  fs.mkdirSync(dir);
-
-  const packageJson = path.resolve(dir, 'package.json');
-  const tsConfigJson = path.resolve(dir, 'tsconfig.json');
-
-  fs.writeFileSync(packageJson, JSON.stringify({}));
-  fs.writeFileSync(
-    tsConfigJson,
-    JSON.stringify({
-      compilerOptions: {
-        target: 'es2020',
-        module: 'commonjs',
-        esModuleInterop: true,
-        forceConsistentCasingInFileNames: true,
-        declaration: true,
-        strict: true,
-        skipLibCheck: true,
-        outDir: 'dist',
-      },
-    }),
-  );
-
-  child_process.execSync(
-    'npm i --save-dev ts-node typescript',
-    {stdio: 'inherit', cwd: dir},
-  );
-
-  return {packageJson, tsConfigJson};
 };
 
 export const createGraphProtocolTemplate = ({
@@ -296,28 +259,25 @@ const postgres = ({
   postgresPassword,
   postgresPort,
   postgresUser,
+  dockerContainerName = nanoid(),
 }: {
   readonly postgresPort: number;
   readonly postgresDb: string;
   readonly postgresUser: string;
   readonly postgresPassword: string;
-}) => {
-  child_process.execSync(
-    'docker rm autographed;',
-  );
-  return new Promise(
-    () => child_process.exec(
-       `
-docker run --name autographed \
+  readonly dockerContainerName?: string;
+}) => new Promise(
+  () => child_process.exec(
+     `
+docker run --name ${dockerContainerName} \
 -p "${postgresPort}:${postgresPort}" \
 -e "POSTGRES_DB=${postgresDb}" \
 -e "POSTGRES_USER=${postgresUser}" \
 -e "POSTGRES_PASSWORD=${postgresPassword}" \
 postgres:14-alpine
-      `.trim(),
-    ),
-  ) /* forever */;
-};
+    `.trim(),
+  ),
+) /* forever */;
 
 export const graphNode = async ({
   graphNodeInstallationDir,
@@ -382,7 +342,7 @@ export const subgraph = async ({
   await waitForGraph({
     graphNodeGraphQLPort,
   });
-  child_process.execSync(
+  return child_process.execSync(
     `graph create --node http://localhost:${
       graphNodeStatusPort
     } ${

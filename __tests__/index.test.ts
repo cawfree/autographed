@@ -6,7 +6,6 @@ import fs from 'fs-extra';
 import {createHardhatProject, compileHardhatProject} from 'hardhat-copy';
 
 import {
-  createRepo,
   createGraphProtocolTemplate,
   Environment,
   NumericString,
@@ -110,19 +109,8 @@ it("throwOrPurgeOnDirExists", () => {
   expect(fs.existsSync(dir)).toBeFalsy();
 });
 
-it("createRepo", () => {
-  const dir = tempPath('autodave::jest::createRepo');
-  const {
-    packageJson,
-    tsConfigJson,
-  } = createRepo({dir, purgeIfExists: true});
-
-  expect(fs.readFileSync(packageJson, 'utf-8')).toMatchSnapshot();
-  expect(fs.readFileSync(tsConfigJson, 'utf-8')).toMatchSnapshot();
-});
-
 const testHardhatProject = tempPath('autodave::jest::compileHardhatProject');
-const cacheEnabled = true;
+const cacheEnabled = false;
 
 it("compileHardhatProject", () => {
   if (fs.existsSync(testHardhatProject) && cacheEnabled) return;
