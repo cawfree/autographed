@@ -58,6 +58,8 @@ void (async () => {
   // Source code changes all of the time. We're free to rebuild this.
   const subgraphTemplateDir = tempPath(`subgraphTemplateDir__${seed}`);
 
+  const {ethereumNetwork} = deployParams;
+
   // Rebuild every time (source code can change).
   createSubgraphTemplate({
     sources,
@@ -65,6 +67,7 @@ void (async () => {
     graphProtocolTemplateDir,
     hardhatProjectDir,
     purgeIfExists: true,
+    ethereumNetwork,
   });
 
   await deploy({

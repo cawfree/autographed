@@ -151,6 +151,7 @@ it("createSubgraphTemplate", () => {
     dir: subgraphTemplate,
     graphProtocolTemplateDir,
     hardhatProjectDir: testHardhatProject,
+    ethereumNetwork: 'hardhat',
     purgeIfExists: true,
   });
 

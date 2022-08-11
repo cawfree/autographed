@@ -69,12 +69,14 @@ export const createSubgraphTemplate = ({
   graphProtocolTemplateDir,
   purgeIfExists,
   hardhatProjectDir,
+  ethereumNetwork,
 }: {
   readonly sources: readonly Source[];
   readonly dir: string;
   readonly graphProtocolTemplateDir: string;
   readonly purgeIfExists?: boolean;
   readonly hardhatProjectDir: string;
+  readonly ethereumNetwork: string;
 }) => {
 
   if (!fs.existsSync(graphProtocolTemplateDir))
@@ -152,7 +154,7 @@ export const createSubgraphTemplate = ({
     stringify({
       ...extras,
       dataSources: Array.from(dataSources)
-        .map((e: any) => ({...e, network: 'hardhat'}))
+        .map((e: any) => ({...e, network: ethereumNetwork}))
         .filter((_, i) => i > 0),
     }),
   );
