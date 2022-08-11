@@ -17,7 +17,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 On top of that, you'll need to be able to run [__Docker Containers__](https://www.docker.com/). The easiest way to do this is to download and install [__Docker Desktop__](https://www.docker.com/products/docker-desktop/).
 
-With these steps out of the way, you'll finally need to install these final low-level dependencies:
+With these steps out of the way, you'll finally need to install these last low-level dependencies:
 
 ```shell
 ipfs jq gsed libpq cmake
